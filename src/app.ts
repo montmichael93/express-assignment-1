@@ -14,5 +14,5 @@ const port = process.env.NODE_ENV === "test" ? 3001 : 3000;
 app.listen(port, () =>
   console.log(`
 🚀 Server ready at: http://localhost:${port}
-`)
+`),
 );
