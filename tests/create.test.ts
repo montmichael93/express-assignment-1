@@ -58,7 +58,6 @@ describe("POST /dogs", () => {
       `/dogs`,
       createData
     );
-
     const errors = data.errors;
     const correctErrorIncluded = errors.some(
       (err: string) => err === "age should be a number"
@@ -79,7 +78,6 @@ describe("POST /dogs", () => {
       `/dogs`,
       createData
     );
-
     const errors = data.errors;
     const correctErrorIncluded = errors.some(
       (err: string) => err === "name should be a string"

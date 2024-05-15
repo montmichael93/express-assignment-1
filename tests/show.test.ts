@@ -35,6 +35,7 @@ describe("GET /dogs/:id", () => {
 
   it("If I have a bad request I should receive a message that says 'id should be a number'", async () => {
     const { data, status } = await get(`/dogs/dummy`);
+
     expect(status).toEqual(400);
     expect(data).toEqual({
       message: "id should be a number",
