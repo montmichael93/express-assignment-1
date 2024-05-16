@@ -12,53 +12,50 @@ app.get("/", (_req, res) => {
 });
 
 app.post("/dogs", async (req, res) => {
-  type errorsArray = {
-    errors: string[];
-  };
-  const errors: errorsArray = { errors: [] };
+  const errors = [];
   const body: Dog = req?.body;
   const name = body?.name;
   const age = body?.age;
   const breed = body?.breed;
   const description = body?.description;
   const validKeys = ["name", "breed", "age", "description"];
-  const invalidObjectKeyFound = Object.keys(body).filter(
+  const invalidKey = Object.keys(body).filter(
     (key) => !validKeys.includes(key)
   );
-  if (invalidObjectKeyFound.length > 0) {
-    for (const key of invalidObjectKeyFound) {
-      errors.errors.push(`'${key}' is not a valid key`);
+  if (invalidKey.length > 0) {
+    for (const key of invalidKey) {
+      errors.push(`'${key}' is not a valid key`);
     }
   }
   if (typeof age !== "number") {
-    errors.errors.push("age should be a number");
+    errors.push("age should be a number");
   }
 
   if (typeof name !== "string") {
-    errors.errors.push("name should be a string");
+    errors.push("name should be a string");
   }
 
   if (typeof breed !== "string") {
-    errors.errors.push("breed should be a string");
+    errors.push("breed should be a string");
   }
 
   if (typeof description !== "string") {
-    errors.errors.push("description should be a string");
+    errors.push("description should be a string");
   }
 
-  if (errors.errors.length > 0) {
-    res.status(400).send(errors);
-  } else {
-    const newDog: Dog = await prisma.dog.create({
-      data: {
-        name,
-        age,
-        breed,
-        description,
-      },
-    });
-    res.status(201).send(newDog);
+  if (errors.length > 0) {
+    return res.status(400).send({ errors });
   }
+
+  const newDog: Dog = await prisma.dog.create({
+    data: {
+      name,
+      age,
+      breed,
+      description,
+    },
+  });
+  res.status(201).send(newDog);
 });
 
 app.get("/dogs/", async (_req, res) => {
@@ -82,11 +79,10 @@ app.get("/dogs/:id", async (req, res) => {
       id,
     },
   });
-  if (selectedDog) {
-    return res.send(selectedDog);
-  } else {
+  if (!selectedDog) {
     return res.status(204).send(selectedDog);
   }
+  return res.send(selectedDog);
 });
 
 app.patch("/dogs/:id", async (req, res) => {
@@ -122,9 +118,8 @@ app.patch("/dogs/:id", async (req, res) => {
   });
   if (errors.errors.length > 0) {
     res.status(201).send(errors);
-  } else {
-    res.status(201).send(dogToUpdate);
   }
+  res.status(201).send(dogToUpdate);
 });
 
 app.delete("/dogs/:id", async (req, res) => {
@@ -134,19 +129,19 @@ app.delete("/dogs/:id", async (req, res) => {
       .status(400)
       .send({ message: "id should be a number" });
   }
-  const toBeDeleted = await Promise.resolve()
-    .then(() =>
-      prisma.dog.delete({
-        where: {
-          id,
-        },
-      })
-    )
+  const toBeDeleted = await prisma.dog
+    .delete({
+      where: {
+        id,
+      },
+    })
     .catch(() => null);
   if (toBeDeleted === null) {
     return res.status(204).send(toBeDeleted);
-  } else return res.status(200).send(toBeDeleted);
+  }
+  res.status(200).send(toBeDeleted);
 });
+
 // all your code should go above this line
 app.use(errorHandleMiddleware);
 
